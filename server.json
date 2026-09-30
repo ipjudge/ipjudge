@@ -1,0 +1,14 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "org.ipjudge/ipjudge",
+  "title": "IP Judge",
+  "description": "Check an IP or your own network exit before using ChatGPT, Claude, Gemini or Meta Muse.",
+  "version": "1.0.0",
+  "websiteUrl": "https://ipjudge.org/en/tools/api/",
+  "icons": [
+    {"src": "https://ipjudge.org/static/favicon.svg", "mimeType": "image/svg+xml", "sizes": ["any"]}
+  ],
+  "remotes": [
+    {"type": "streamable-http", "url": "https://ipjudge.org/mcp"}
+  ]
+}
