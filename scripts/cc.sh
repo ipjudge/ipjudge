@@ -139,5 +139,5 @@ esac
 # ---------- 结论 ----------
 head_ "$(T '结论' 'Result')"
 if [ "$NB" = 0 ] && [ "$NW" = 0 ]; then printf '  %s\n' "$(ok "$(T '没有发现问题：终端访问 AI 服务的出口一致、地区受支持。' 'No problems: the terminal reaches AI services through one supported exit.')")"
-else printf '  %s\n' "$(T "发现 $NB 个严重问题、$NW 个需注意：" "$NB critical, $NW warning(s):")"; printf '%b\n' "$FIX"; fi
+else printf '  %s\n' "$(T "有 ${NB} 项要处理、${NW} 项建议留意：" "${NB} to fix, ${NW} to watch:")"; printf '%b\n' "$FIX"; fi
 printf '\n  %s\n' "$(dim "$(T "浏览器那边也要测：打开 $SITE 对照「访问 Claude 的 IP」是不是同一个。" "Check the browser too: open $SITE and compare its \"IP used for Claude\".")")"
