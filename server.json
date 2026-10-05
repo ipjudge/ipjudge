@@ -3,13 +3,20 @@
   "name": "org.ipjudge/ipjudge",
   "title": "IP Judge",
   "description": "Check an IP or your own network exit before using ChatGPT, Claude, Gemini or Meta Muse.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "websiteUrl": "https://ipjudge.org/en/tools/api/",
   "repository": {
     "url": "https://github.com/ipjudge/ipjudge",
     "source": "github"
   },
   "icons": [
+    {
+      "src": "https://ipjudge.org/static/icons/icon-512.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "512x512"
+      ]
+    },
     {
       "src": "https://ipjudge.org/static/favicon.svg",
       "mimeType": "image/svg+xml",
