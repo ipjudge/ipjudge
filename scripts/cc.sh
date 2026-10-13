@@ -2,7 +2,7 @@
 # IP 判官 · Claude Code / Codex 终端出口体检    https://ipjudge.org/claude-code/
 #   curl -sL ipjudge.org/cc | bash            中文
 #   curl -sL ipjudge.org/en/cc | bash         English
-# 为什么要单独测终端:Claude Code、Codex 跑在终端里,只认 HTTPS_PROXY 这类环境变量,不一定走浏览器用的代理。
+# 为什么要单独测终端:Claude Code、Codex 跑在终端里,靠 HTTPS_PROXY 这类环境变量走代理,不一定走浏览器用的代理。
 # 只读检查:不安装任何东西、不改任何设置、不上传任何数据(只向 ipjudge.org 查询出口 IP 的判定)。
 
 LANG_EN=0
@@ -62,6 +62,24 @@ if [ -z "$CCP" ] && { [ -n "${ALL_PROXY:-}" ] || [ -n "${all_proxy:-}" ]; }; the
   issue bad "$(T '只设了 ALL_PROXY：curl 会走代理，Claude Code 不会' 'Only ALL_PROXY is set: curl uses it, Claude Code does not')" \
     "$(T 'Claude Code 不读 ALL_PROXY。再加一行 export https_proxy=http://127.0.0.1:端口（HTTP / 混合端口）。' 'Claude Code ignores ALL_PROXY. Also export https_proxy=http://127.0.0.1:PORT (HTTP / mixed port).')"
 fi
+# Codex 自己的规则(openai/codex 源码,官方文档未写,2026-10-01 核对 0.159.2):
+#   HTTPS 请求:HTTPS_PROXY → https_proxy → ALL_PROXY → all_proxy(大写优先,同 curl 相反);
+#   启动时读 $CODEX_HOME/.env(默认 ~/.codex/.env),覆盖终端里同名变量;HTTP 客户端冇开 SOCKS。
+CXENV="${CODEX_HOME:-$HOME/.codex}/.env"
+cxget() { [ -f "$CXENV" ] && sed -nE "s/^[[:space:]]*(export[[:space:]]+)?$1[[:space:]]*=[[:space:]]*[\"']?([^\"'[:space:]#]*).*/\\2/p" "$CXENV" | tail -1; }
+CXP=""; CXSRC=""
+for v in HTTPS_PROXY https_proxy ALL_PROXY all_proxy; do
+  f=$(cxget "$v"); val="${f:-${!v:-}}"
+  if [ -n "$val" ]; then CXP="$val"; CXSRC="$v"; [ -n "$f" ] && CXSRC="$v @ ${CXENV/#$HOME/~}"; break; fi
+done
+row "$(T 'Codex 实际用的代理' 'Proxy Codex uses')" "$( [ -n "$CXP" ] && printf '%s  %s' "$(mask "$CXP")" "$(dim "($CXSRC)")" || warn "$(T '无（直连）' 'none (direct)')")"
+case "$CXSRC" in *@*)
+  issue warn "$(T "Codex 会用 ${CXENV/#$HOME/~} 里的代理，覆盖终端设置" "Codex takes the proxy from ${CXENV/#$HOME/~}, overriding this terminal")" \
+    "$(T '下面的出口是按终端变量测的。端口改过的话，记得同步改这个文件，否则 Codex 会连到没人监听的端口。' 'The exits below follow this terminal’s variables. If your proxy port changed, update that file too, or Codex will connect to a dead port.')" ;;
+esac
+case "$CXP" in socks*)
+  issue warn "$(T 'Codex 用 SOCKS 代理可能不稳定' 'SOCKS may be unreliable with Codex')" "$(T 'Codex 的 HTTP 客户端没有开启 SOCKS 支持。换成 HTTP / 混合端口，例如 http://127.0.0.1:7890。' 'Codex’s HTTP client is built without SOCKS. Use the HTTP / mixed port instead, e.g. http://127.0.0.1:7890.')" ;;
+esac
 SYS=""
 if command -v scutil >/dev/null 2>&1; then
   P=$(scutil --proxy 2>/dev/null)
