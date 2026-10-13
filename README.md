@@ -38,8 +38,13 @@ curl -sL ipjudge.org/en/cc | bash       # English
 [`skills/ipjudge-exit-check`](skills/ipjudge-exit-check) 是一个遵循 [Agent Skills 规范](https://agentskills.io/specification) 的技能：装好后，对 agent 说「帮我查一下终端出口」，它会运行内置的 [`exit-check.sh`](skills/ipjudge-exit-check/scripts/exit-check.sh) 并用大白话解释结果。
 
 ```bash
-DO_NOT_TRACK=1 npx --yes skills add ipjudge/ipjudge --skill ipjudge-exit-check --global --copy --yes
+# Claude Code（装到 ~/.claude/skills/）
+DO_NOT_TRACK=1 npx --yes skills add ipjudge/ipjudge --skill ipjudge-exit-check --global --agent claude-code --copy --yes
+# Codex / Cursor / GitHub Copilot / OpenCode（装到 ~/.agents/skills/）
+DO_NOT_TRACK=1 npx --yes skills add ipjudge/ipjudge --skill ipjudge-exit-check --global --agent codex --copy --yes
 ```
+
+一定要带 `--agent`：不带的话安装器会把它复制进几十个不同工具的目录。
 
 - **只读**：不改任何设置、不装东西。代理变量只报名称和形态，不打印地址、账号密码或 `NO_PROXY` 内容；不读 `settings.json` 的值。
 - **只往外发一次查询**：把出口 IP 发给 ipjudge.org 取判定，其余请求是各平台公开的 `/cdn-cgi/trace`。
