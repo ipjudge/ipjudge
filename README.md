@@ -14,11 +14,13 @@
 
 两个脚本都是**只读**的：不安装任何东西、不改设置、不上传数据。发往 ipjudge.org 的请求只有一个：查询本机出口 IP 的判定（和你直接打开网站一样）。其余请求直接访问各平台的公开地址。
 
-线上脚本和本仓库 `main` 分支一致，可以自己核对：
+本仓库的脚本与线上同步更新，但线上发布并不由本仓库自动触发，二者可能短暂不一致。运行前请自己核对：
 
 ```bash
 diff <(curl -sL ipjudge.org/cc) scripts/cc.sh && echo 一致
 ```
+
+有输出就说明线上版本比仓库新（或相反），以你实际读过的那一份为准；欢迎在本仓库开 issue。
 
 ## 终端出口体检（Claude Code / Codex）
 
@@ -29,7 +31,24 @@ curl -sL ipjudge.org/cc | bash          # 中文
 curl -sL ipjudge.org/en/cc | bash       # English
 ```
 
-按 Claude Code 官方规则判断代理：只认 `https_proxy` / `HTTPS_PROXY` / `http_proxy` / `HTTP_PROXY` 和 `~/.claude/settings.json` 里的 `env`；**不支持 SOCKS，不读 `ALL_PROXY`**（[官方文档](https://code.claude.com/docs/en/corporate-proxy)）。
+按 Claude Code 官方规则判断代理：只认 `https_proxy` / `HTTPS_PROXY` / `http_proxy` / `HTTP_PROXY` 和 `~/.claude/settings.json` 里的 `env`；**不支持 SOCKS**；官方文档只列了上面四个变量，没有提到 `ALL_PROXY`（[官方文档](https://code.claude.com/docs/en/corporate-proxy)）。
+
+## Agent Skill：在 Claude Code / Codex 里直接自检
+
+[`skills/ipjudge-exit-check`](skills/ipjudge-exit-check) 是一个遵循 [Agent Skills 规范](https://agentskills.io/specification) 的技能：装好后，对 agent 说「帮我查一下终端出口」，它会运行内置的 [`exit-check.sh`](skills/ipjudge-exit-check/scripts/exit-check.sh) 并用大白话解释结果。
+
+```bash
+DO_NOT_TRACK=1 npx --yes skills add ipjudge/ipjudge --skill ipjudge-exit-check --global --copy --yes
+```
+
+- **只读**：不改任何设置、不装东西。代理变量只报名称和形态，不打印地址、账号密码或 `NO_PROXY` 内容；不读 `settings.json` 的值。
+- **只往外发一次查询**：把出口 IP 发给 ipjudge.org 取判定，其余请求是各平台公开的 `/cdn-cgi/trace`。
+- **只陈述观测到的事实**：能看出「某个域名看到的是哪个 IP、哪个国家」，看不出账号、登录或 API 会不会成功，也不预测任何账号的结果。检查没跑完时会明确标「不完整」，不会说「没问题」。
+- 需要 bash 3.2+ 和 curl（macOS / Linux / WSL）；原生 Windows 请用网页版。
+- 安装器自带的统计请求用 `DO_NOT_TRACK=1` 关闭；脚本本身没有任何统计。
+- 测试：`tests/run_tests.sh`（全部使用本机假服务，不联网）。
+
+作者说明：IP 判官由易联（Voguesly）的运营方维护，二者有关联。
 
 ## MCP（给 AI Agent 用）
 
