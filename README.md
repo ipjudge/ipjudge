@@ -48,8 +48,6 @@ DO_NOT_TRACK=1 npx --yes skills add ipjudge/ipjudge --skill ipjudge-exit-check -
 - 安装器自带的统计请求用 `DO_NOT_TRACK=1` 关闭；脚本本身没有任何统计。
 - 测试：`tests/run_tests.sh`（全部使用本机假服务，不联网）。
 
-作者说明：IP 判官由易联（Voguesly）的运营方维护，二者有关联。
-
 ## MCP（给 AI Agent 用）
 
 端点：`https://ipjudge.org/mcp`（Streamable HTTP，免费，不需要 key）
